@@ -90,11 +90,18 @@ class Enrollment(models.Model):
 # Lecture
 # ---------------------------------------------------------------------------
 
+# helper function
+def random_qr():
+    """Randomly generate a 50-character qr_identifier for Lecture"""
+    chars = string.ascii_letters + string.digits
+    identifier = random.choices(chars, k=50)
+    return ''.join(identifier)
+
 class Lecture(models.Model):
     """Stores information about lectures"""
     lecture_id = models.CharField(primary_key=True, max_length=50)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    qr_identifier = models.CharField(max_length=50, unique=True)
+    qr_identifier = models.CharField(max_length=50, unique=True, default=random_qr)
     date = models.DateField()
 
     def __str__(self):
@@ -122,5 +129,5 @@ class QRCodeUpload(models.Model):
 # Helper / API functions
 # ---------------------------------------------------------------------------
 
-
-
+# moved random_qr to before Lecture since it was giving me errors when I leave it
+# down here.
