@@ -31,8 +31,9 @@ logger = logging.getLogger(__name__) # set up tracking, auditing, and debugging
 # ---------------------------------------------------------------------------
 # User profiles
 # ---------------------------------------------------------------------------
-class studentProfile(models.Model):
+class StudentProfile(models.Model):
     """Stores profile information for students."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     student_id = models.IntegerField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -41,8 +42,9 @@ class studentProfile(models.Model):
     def __str__(self):
         return f"{self.student_id}"
 
-class instructorProfile(models.Model):
+class InstructorProfile(models.Model):
     """Stores profile information for instructors."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     instructor_id = models.IntegerField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -57,11 +59,11 @@ class instructorProfile(models.Model):
 # Course
 # ---------------------------------------------------------------------------
 
-class course(models.Model):
+class Course(models.Model):
     """Stores information about courses."""
     course_id = models.CharField(primary_key=True, max_length=50)
     course_name = models.CharField(max_length=50, unique=True)
-    instructor = models.ForeignKey(instructorProfile, on_delete=models.SET_NULL, null=True)
+    instructor = models.ForeignKey(InstructorProfile, on_delete=models.SET_NULL, null=True)
     meeting_days = models.CharField(max_length=50)
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -74,10 +76,10 @@ class course(models.Model):
 # Enrollment
 # ---------------------------------------------------------------------------
 
-class enrollment(models.Model):
+class Enrollment(models.Model):
     """Junction table for Student and Course"""
-    student = models.ForeignKey(studentProfile, on_delete=models.CASCADE)
-    course = models.ForeignKey(course, on_delete=models.CASCADE)
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     pk = models.CompositePrimaryKey("student_id", "course_id")
 
     def __str__(self):
@@ -88,10 +90,10 @@ class enrollment(models.Model):
 # Lecture
 # ---------------------------------------------------------------------------
 
-class lecture(models.Model):
+class Lecture(models.Model):
     """Stores information about lectures"""
     lecture_id = models.CharField(primary_key=True, max_length=50)
-    course = models.ForeignKey(course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     qr_identifier = models.CharField(max_length=50, unique=True)
     date = models.DateField()
 
@@ -103,11 +105,11 @@ class lecture(models.Model):
 # QR Code Upload
 # ---------------------------------------------------------------------------
 
-class qrCodeUpload(models.Model):
+class QRCodeUpload(models.Model):
     """Stores information about student uploads"""
     qr_id = models.CharField(primary_key=True, max_length=50)
-    student = models.ForeignKey(studentProfile, on_delete=models.CASCADE)
-    lecture = models.ForeignKey(lecture, on_delete=models.CASCADE)
+    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
     photo = models.ImageField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
