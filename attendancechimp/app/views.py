@@ -58,13 +58,14 @@ def new(request):
         return HttpResponseForbidden("Only GET requests.")
     return render(request, "app/new.html")
 
+@csrf_exempt
 def createUser(request):
     """Create a User and login"""
     if request.method != "POST":
         return HttpResponseForbidden("Only POST requests.")
 
     email = request.POST.get("email")
-    username = request.POST.get("username")
+    username = request.POST.get("user_name")
     password = request.POST.get("password")
     is_student = request.POST.get("is_student")
 
@@ -77,7 +78,7 @@ def createUser(request):
         password=password
     )
 
-    if is_student:
+    if is_student == "1":
         StudentProfile.objects.create(
             user=user,
             first_name="",

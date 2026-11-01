@@ -16,8 +16,8 @@
 
     <form action="/app/createUser" method="post">
       <div>
-        <label for="username">Username:</label>
-        <input id="username" name="username" required />
+        <label for="user_name">Username:</label>
+        <input id="user_name" name="user_name" required />
       </div>
 
       <div>
@@ -34,10 +34,10 @@
         <label>Account Type:</label>
 
         <label for="student">Student</label>
-        <input type="radio" id="student" name="is_student" value="true" />
+        <input type="radio" id="student" name="is_student" value="1" />
 
         <label for="instructor">Instructor</label>
-        <input type="radio" id="instructor" name="is_student" value="false" />
+        <input type="radio" id="instructor" name="is_student" value="0" />
       </div>
 
       <button type="submit">Sign Up</button>
