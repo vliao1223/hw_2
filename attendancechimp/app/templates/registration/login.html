@@ -1,7 +1,23 @@
-<!DOCTYPE html>
-<html><head><title>Login</title></head>
-<body style="text-align:center; font-family:Arial;">
-<h1>Log In</h1>
+<!doctype html>
+<html>
+  <head>
+    <title>Login</title>
+  </head>
+  <body style="text-align: center; font-family: Arial">
+    <h1>Log In</h1>
+    <form action="/accounts/login/" method="post">
+      {% csrf_token %}
+      <div>
+        <label for="username">Username:</label>
+        <input id="username" name="username" required />
+      </div>
 
-</body>
+      <div>
+        <label for="password">Password:</label>
+        <input id="password" name="password" required />
+      </div>
+
+      <button type="submit">Log In</button>
+    </form>
+  </body>
 </html>

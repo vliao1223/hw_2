@@ -16,6 +16,8 @@ import zoneinfo
 import json
 import io
 
+from .models import (InstructorProfile, StudentProfile)
+
 # from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
 #                      Lecture, QRCodeUpload, is_instructor, is_student,
 #                      getUploadsForCourse)
@@ -29,8 +31,11 @@ CDT = zoneinfo.ZoneInfo("America/Chicago")
 
 def index(request):
     """Render the home page (index.html)."""
-
-    context = {}
+    user = request.user
+    context = {
+        "username": user.get_username() if user.is_authenticated else None,
+        "time": datetime.now(CDT).strftime("%H:%M"),
+    }
     return render(request, 'app/index.html', context)
 
 def time_view(request):
@@ -47,7 +52,50 @@ def sum_view(request):
 # HW4  — user creation
 # ---------------------------------------------------------------------------
 
+def new(request):
+    """Render the sign-up form."""
+    if request.method != "GET":
+        return HttpResponseForbidden("Only GET requests.")
+    return render(request, "app/new.html")
 
+def createUser(request):
+    """Create a User and login"""
+    if request.method != "POST":
+        return HttpResponseForbidden("Only POST requests.")
+
+    email = request.POST.get("email")
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+    is_student = request.POST.get("is_student")
+
+    if User.objects.filter(email=email).exists():
+        return HttpResponseBadRequest("Email already exists.")
+
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password
+    )
+
+    if is_student:
+        StudentProfile.objects.create(
+            user=user,
+            first_name="",
+            last_name="",
+            school_email=email,
+        )
+    else:
+        InstructorProfile.objects.create(
+            user=user,
+            first_name="",
+            last_name="",
+            school_email=email,
+            department="",
+        )
+
+    login(request, authenticate(request, username=username, password=password))
+
+    return HttpResponse(f"Hello, {username}. You have successfully created your account!")
 
 # ---------------------------------------------------------------------------
 # HW5  — courses, lectures, QR uploads, dump
