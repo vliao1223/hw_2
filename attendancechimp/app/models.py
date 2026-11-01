@@ -80,7 +80,14 @@ class Enrollment(models.Model):
     """Junction table for Student and Course"""
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    pk = models.CompositePrimaryKey("student_id", "course_id")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "course"],
+                name="pk_student_course"
+            )
+        ]
 
     def __str__(self):
         return f"{self.student}, {self.course}"
