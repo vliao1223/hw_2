@@ -136,9 +136,9 @@ def createCourse(request):
 
     meeting_days_options = [
         ("day-mon", "M"),
-        ("day-tue", "Tu"),
+        ("day-tue", "T"),
         ("day-wed", "W"),
-        ("day-thu", "Th"),
+        ("day-thu", "TH"),
         ("day-fri", "F"),
     ]
 
@@ -192,7 +192,6 @@ def createQRCodeUpload(request):
 
     photo = request.FILES.get("imageUpload")
 
-
     QRCodeUpload.objects.create(
         student=student,
         photo=photo,
@@ -217,7 +216,7 @@ def dumpUploads(request):
             "username": upload.student.user.username,
             "upload_time": upload.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
         }
-        for upload in QRCodeUpload.objects.select_related("student__user")
+        for upload in QRCodeUpload.objects.all()
     ]
     return JsonResponse(data, safe=False)
 

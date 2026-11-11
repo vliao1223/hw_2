@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Sign Up</title>
+    <title>New Course</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -23,15 +23,6 @@
       </div>
 
       <div>
-        <label>Meeting days:</label>
-        <input type="checkbox" id="day-mon" name="day-mon" value="1" /><label>Mon</label>
-        <input type="checkbox" id="day-tue" name="day-tue" value="1" /><label>Tue</label>
-        <input type="checkbox" id="day-wed" name="day-wed" value="1" /><label>Wed</label>
-        <input type="checkbox" id="day-thu" name="day-thu" value="1" /><label>Thu</label>
-        <input type="checkbox" id="day-fri" name="day-fri" value="1" /><label>Fri</label>
-      </div>
-
-      <div>
         <label for="start-time">Start time:</label>
         <input type="time" id="start-time" name="start-time" required />
       </div>
@@ -39,6 +30,20 @@
       <div>
         <label for="end-time">End time:</label>
         <input type="time" id="end-time" name="end-time" required />
+      </div>
+
+      <div>
+        <label>Meeting days:</label>
+        <label>Monday</label>
+        <input type="checkbox" id="day-mon" name="day-mon" value="1" />
+        <label>Tuesday</label>
+        <input type="checkbox" id="day-tue" name="day-tue" value="1" />
+        <label>Wednesday</label>
+        <input type="checkbox" id="day-wed" name="day-wed" value="1" />
+        <label>Thursday</label>
+        <input type="checkbox" id="day-thu" name="day-thu" value="1" />
+        <label>Friday</label>
+        <input type="checkbox" id="day-fri" name="day-fri" value="1" />
       </div>
 
       <button type="submit">Create Course</button>
