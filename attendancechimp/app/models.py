@@ -120,13 +120,10 @@ class Lecture(models.Model):
 class QRCodeUpload(models.Model):
     """Stores information about student uploads"""
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, null=True, blank=True)
     photo = models.ImageField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-
-    def __str__(self):
-        return f"{self.lecture_id}"
 
 
 # ---------------------------------------------------------------------------
