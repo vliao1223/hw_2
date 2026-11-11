@@ -103,13 +103,17 @@ def createUser(request):
 # HW5  — courses, lectures, QR uploads, dump
 # ---------------------------------------------------------------------------
 
-meeting_days_options = [
-    ("day-mon", "M"),
-    ("day-tue", "Tu"),
-    ("day-wed", "W"),
-    ("day-thu", "Th"),
-    ("day-fri", "F"),
-]
+
+def new_course(request):
+    return render(request, "app/new_course.html")
+
+
+def new_lecture(request):
+    return render(request, "app/new_lecture.html")
+
+
+def new_qr_upload(request):
+    return render(request, "app/new_qr_upload.html")
 
 
 @csrf_exempt
@@ -129,6 +133,15 @@ def createCourse(request):
     course_name = request.POST.get("course-name")
     start_time = request.POST.get("start-time")
     end_time = request.POST.get("end-time")
+
+    meeting_days_options = [
+        ("day-mon", "M"),
+        ("day-tue", "Tu"),
+        ("day-wed", "W"),
+        ("day-thu", "Th"),
+        ("day-fri", "F"),
+    ]
+
     meeting_days = "".join(day_short for day, day_short in meeting_days_options if request.POST.get(day))
 
     Course.objects.create(
