@@ -160,9 +160,9 @@ def createLecture(request):
         return HttpResponse("Only POST")
 
     if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Please log in", status=401)
     if not InstructorProfile.objects.filter(user=request.user).exists():
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Not a professor", status=401)
 
     choice = request.POST.get("choice")
     course = Course.objects.get(course_name=choice)
@@ -183,7 +183,7 @@ def createQRCodeUpload(request):
         return HttpResponse("Only POST")
 
     if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("You need to be logged in", status=401)
 
     try:
         student = StudentProfile.objects.get(user=request.user)
@@ -207,9 +207,9 @@ def dumpUploads(request):
         return HttpResponse("Only GET")
 
     if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Need to be logged in", status=401)
     if not InstructorProfile.objects.filter(user=request.user).exists():
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Not a professor", status=401)
 
     data = [
         {
