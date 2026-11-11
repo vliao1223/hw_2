@@ -61,7 +61,6 @@ class InstructorProfile(models.Model):
 
 class Course(models.Model):
     """Stores information about courses."""
-    course_id = models.CharField(primary_key=True, max_length=50)
     course_name = models.CharField(max_length=50, unique=True)
     instructor = models.ForeignKey(InstructorProfile, on_delete=models.SET_NULL, null=True)
     meeting_days = models.CharField(max_length=50)
@@ -106,7 +105,6 @@ def random_qr():
 
 class Lecture(models.Model):
     """Stores information about lectures"""
-    lecture_id = models.CharField(primary_key=True, max_length=50)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     qr_identifier = models.CharField(max_length=50, unique=True, default=random_qr)
     date = models.DateField()
@@ -121,7 +119,6 @@ class Lecture(models.Model):
 
 class QRCodeUpload(models.Model):
     """Stores information about student uploads"""
-    qr_id = models.CharField(primary_key=True, max_length=50)
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
     photo = models.ImageField()
