@@ -17,8 +17,7 @@ import json
 import io
 
 from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
-                     Lecture, QRCodeUpload, is_instructor, is_student,
-                     getUploadsForCourse)
+                     Lecture, QRCodeUpload)
 
 # from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
 #                      Lecture, QRCodeUpload, is_instructor, is_student,
