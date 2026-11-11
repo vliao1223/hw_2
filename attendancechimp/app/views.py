@@ -16,7 +16,9 @@ import zoneinfo
 import json
 import io
 
-from .models import (InstructorProfile, StudentProfile)
+from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
+                     Lecture, QRCodeUpload, is_instructor, is_student,
+                     getUploadsForCourse)
 
 # from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
 #                      Lecture, QRCodeUpload, is_instructor, is_student,
@@ -102,7 +104,110 @@ def createUser(request):
 # HW5  — courses, lectures, QR uploads, dump
 # ---------------------------------------------------------------------------
 
+meeting_days_options = [
+    ("day-mon", "M"),
+    ("day-tue", "Tu"),
+    ("day-wed", "W"),
+    ("day-thu", "Th"),
+    ("day-fri", "F"),
+]
 
+
+@csrf_exempt
+def createCourse(request):
+
+    if request.method != "POST":
+        return HttpResponse("Only POST")
+
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+
+    try:
+        instructor = InstructorProfile.objects.get(user=request.user)
+    except InstructorProfile.DoesNotExist:
+        return HttpResponse("Not a professor", status=401)
+
+    course_name = request.POST.get("course-name")
+    start_time = request.POST.get("start-time")
+    end_time = request.POST.get("end-time")
+    meeting_days = "".join(day_short for day, day_short in meeting_days_options if request.POST.get(day))
+
+    Course.objects.create(
+        course_name=course_name,
+        instructor=instructor,
+        meeting_days=meeting_days,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+    return HttpResponse("Good", status=200)
+
+@csrf_exempt
+def createLecture(request):
+    if request.method != "POST":
+        return HttpResponse("Only POST")
+
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+    if not InstructorProfile.objects.filter(user=request.user).exists():
+        return HttpResponse("Unauthorized", status=401)
+
+    choice = request.POST.get("choice")
+    course = Course.objects.get(course_name=choice)
+
+
+    Lecture.objects.create(
+        course=course,
+        date=datetime.now(CDT).date(),
+    )
+
+    return HttpResponse("Good", status=200)
+
+
+@csrf_exempt
+def createQRCodeUpload(request):
+
+    if request.method != "POST":
+        return HttpResponse("Only POST")
+
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+
+    try:
+        student = StudentProfile.objects.get(user=request.user)
+    except StudentProfile.DoesNotExist:
+        return HttpResponse("Not a student", status=401)
+
+    photo = request.FILES.get("imageUpload")
+
+
+    QRCodeUpload.objects.create(
+        student=student,
+        photo=photo,
+        uploaded_at=datetime.now(CDT)
+    )
+
+    return HttpResponse("Good", status=200)
+
+
+def dumpUploads(request):
+
+    if request.method != "GET":
+        return HttpResponse("Only GET")
+
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+    if not InstructorProfile.objects.filter(user=request.user).exists():
+        return HttpResponse("Unauthorized", status=401)
+
+    data = [
+        {
+            "username": upload.student.user.username,
+            "upload_time": upload.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for upload in QRCodeUpload.objects.select_related("student__user")
+    ]
+    return JsonResponse(data, safe=False)
 
 # ---------------------------------------------------------------------------
 # HW6  — getUploads

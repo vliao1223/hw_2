@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign Up</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>New Lecture</h1>
+    <form action="/app/createLecture" method="post">
+      {% csrf_token %}
+
+      <div>
+        <label for="choice">Course:</label>
+        <input type="text" id="choice" name="choice" required />
+      </div>
+
+      <button type="submit">Create Lecture</button>
+    </form>
+  </body>
+</html>
