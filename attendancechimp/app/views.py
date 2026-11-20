@@ -228,8 +228,10 @@ def getUploads(request):
     if request.method != "GET":
         return HttpResponse("Cannt do GET", status=405)
 
-    if not is_instructor(request.user):
-        return HttpResponse("Need to be an instructor", status=401)
+    if not request.user.is_authenticated:
+            return HttpResponse("You need to be logged in", status=401)
+    if not InstructorProfile.objects.filter(user=request.user).exists():
+            return HttpResponse("Not a professor", status=401)
 
     course = (request.GET.get("course") or "").strip()
     if not course:

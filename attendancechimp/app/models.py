@@ -142,20 +142,13 @@ class QRCodeUpload(models.Model):
 # down here.
 
 def getUploadsForCourse(course):
-    """
-    course: the course number/name, e.g. "DATA13600" (stored in course_name).
-    Returns QRCodeUpload objects for that course whose timestamp falls on a
-    meeting day and between start_time and end_time (inclusive).
-    """
+
     cl = Course.objects.filter(course_name=course).first()
+    if cl is None:
+        return []
 
-    start = cl.start_time
-    end = cl.end_time
-
-    if isinstance(start, str):
-        start = datetime.strptime(start.strip(), "%H:%M").time()
-    if isinstance(end, str):
-        end = datetime.strptime(end.strip(), "%H:%M").time()
+    start = datetime.strptime(cl.start_time.strip(), "%H:%M").time()
+    end = datetime.strptime(cl.end_time.strip(), "%H:%M").time()
 
     class_meeting_days = [
         cl.monday,
