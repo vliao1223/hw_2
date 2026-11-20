@@ -134,8 +134,8 @@ def createCourse(request):
         return HttpResponseBadRequest("Missing course-name.")
 
     try:
-        start_time = datetime.strptime(request.POST.get("start-time", "").strip(), "%H:%M").time()
-        end_time = datetime.strptime(request.POST.get("end-time", "").strip(), "%H:%M").time()
+        start_time = datetime.strptime(request.POST.get("start-time", ""), "%H:%M").time()
+        end_time = datetime.strptime(request.POST.get("end-time", ""), "%H:%M").time()
     except ValueError:
         return HttpResponseBadRequest("Times must be HH:MM.")
 
@@ -145,11 +145,11 @@ def createCourse(request):
     Course.objects.create(
         course_name=course_name,
         instructor=instructor,
-        monday=bool(request.POST.get("monday")),
-        tuesday=bool(request.POST.get("tuesday")),
-        wednesday=bool(request.POST.get("wednesday")),
-        thursday=bool(request.POST.get("thursday")),
-        friday=bool(request.POST.get("friday")),
+        monday=bool(request.POST.get("day-mon")),
+        tuesday=bool(request.POST.get("day-tue")),
+        wednesday=bool(request.POST.get("day-wed")),
+        thursday=bool(request.POST.get("day-thu")),
+        friday=bool(request.POST.get("day-fri")),
         start_time=start_time,
         end_time=end_time,
     )
