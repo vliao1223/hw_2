@@ -129,15 +129,15 @@ def createCourse(request):
     except InstructorProfile.DoesNotExist:
         return HttpResponse("Not a professor", status=401)
 
-    course_name = (request.POST.get("course-name") or "").strip()
+    course_name = (request.POST.get("course-name") or "")
     if not course_name:
         return HttpResponseBadRequest("Missing course-name.")
 
     try:
         start_time = datetime.strptime(request.POST.get("start-time", ""), "%H:%M").time()
         end_time = datetime.strptime(request.POST.get("end-time", ""), "%H:%M").time()
-    except ValueError:
-        return HttpResponseBadRequest("Times must be HH:MM.")
+    except:
+        return HttpResponseBadRequest("Needs to be HH:MM.")
 
     if Course.objects.filter(course_name=course_name).exists():
         return HttpResponseBadRequest("Course already exists.")
@@ -239,7 +239,7 @@ def getUploads(request):
     if not InstructorProfile.objects.filter(user=request.user).exists():
             return HttpResponse("Not a professor", status=401)
 
-    course = (request.GET.get("course") or "").strip()
+    course = (request.GET.get("course") or "")
     if not course:
         return JsonResponse({"error": "Missing course parameter"}, status=400)
 
