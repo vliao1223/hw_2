@@ -164,13 +164,29 @@ def createLecture(request):
     if not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Not a professor", status=401)
 
-    choice = request.POST.get("choice")
-    course = Course.objects.get(course_name=choice)
+    instructor = InstructorProfile.objects.get(user=request.user)
 
+    choice = request.POST.get("choice")
+
+    try:
+        Course.objects.get(course_name=choice)
+    except:
+        return HttpResponse("Course Does not Exist", status=404)
+
+    start_time = datetime.strptime(request.POST.get("start-time", "").strip(), "%H:%M").time()
+    end_time = datetime.strptime(request.POST.get("end-time", "").strip(), "%H:%M").time()
 
     Lecture.objects.create(
         course=course,
+        instructor=instructor,
+        monday=bool(request.POST.get("day-mon")),
+        tuesday=bool(request.POST.get("day-tue")),
+        wednesday=bool(request.POST.get("day-wed")),
+        thursday=bool(request.POST.get("day-thu")),
+        friday=bool(request.POST.get("day-fri")),
         date=datetime.now(CDT).date(),
+        start_time=start_time,
+        end_time=end_time,
     )
 
     return HttpResponse("Good", status=200)

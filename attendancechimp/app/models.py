@@ -75,8 +75,7 @@ class Course(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
-    def __str__(self):
-        return f"{self.course_id}"
+
 
 
 # ---------------------------------------------------------------------------
@@ -117,8 +116,7 @@ class Lecture(models.Model):
     qr_identifier = models.CharField(max_length=50, unique=True, default=random_qr)
     date = models.DateField()
 
-    def __str__(self):
-        return f"{self.lecture_id}"
+
 
 
 # ---------------------------------------------------------------------------
@@ -142,13 +140,12 @@ class QRCodeUpload(models.Model):
 # down here.
 
 def getUploadsForCourse(course):
-
     cl = Course.objects.filter(course_name=course).first()
     if cl is None:
         return []
 
-    start = datetime.strptime(cl.start_time.strip(), "%H:%M").time()
-    end = datetime.strptime(cl.end_time.strip(), "%H:%M").time()
+    start = cl.start_time
+    end = cl.end_time
 
     class_meeting_days = [
         cl.monday,
@@ -162,10 +159,11 @@ def getUploadsForCourse(course):
 
     good_uploads = []
     for upload in uploads:
-        weekday = upload.uploaded_at.astimezone(CDT).weekday()
+        local = upload.uploaded_at.astimezone(CDT)
+        weekday = local.weekday()
         if weekday in (5, 6) or not class_meeting_days[weekday]:
             continue
-        upload_time = upload.uploaded_at.astimezone(CDT).time()
+        upload_time = local.time().replace(second=0, microsecond=0)  # spec uses HH:MM
         if start <= upload_time <= end:
             good_uploads.append(upload)
     return good_uploads
