@@ -134,8 +134,8 @@ def createCourse(request):
         return HttpResponseBadRequest("Missing course-name.")
 
     try:
-        start_time = datetime.strptime(request.POST.get("start-time", ""), "%H:%M").time()
-        end_time = datetime.strptime(request.POST.get("end-time", ""), "%H:%M").time()
+        start_time = datetime.strptime(request.POST.get("start-time", "").strip(), "%H:%M").time()
+        end_time = datetime.strptime(request.POST.get("end-time", "").strip(), "%H:%M").time()
     except ValueError:
         return HttpResponseBadRequest("Times must be HH:MM.")
 
