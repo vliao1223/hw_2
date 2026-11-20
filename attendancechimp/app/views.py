@@ -118,9 +118,8 @@ def new_qr_upload(request):
 
 @csrf_exempt
 def createCourse(request):
-
     if request.method != "POST":
-        return HttpResponse("Only POST")
+        return HttpResponse("Only POST", status=405)
 
     if not request.user.is_authenticated:
         return HttpResponse("Unauthorized", status=401)
@@ -130,24 +129,27 @@ def createCourse(request):
     except InstructorProfile.DoesNotExist:
         return HttpResponse("Not a professor", status=401)
 
-    course_name = request.POST.get("course-name")
-    start_time = request.POST.get("start-time")
-    end_time = request.POST.get("end-time")
+    course_name = (request.POST.get("course-name") or "").strip()
+    if not course_name:
+        return HttpResponseBadRequest("Missing course-name.")
 
-    meeting_days_options = [
-        ("day-mon", "M"),
-        ("day-tue", "T"),
-        ("day-wed", "W"),
-        ("day-thu", "TH"),
-        ("day-fri", "F"),
-    ]
+    try:
+        start_time = datetime.strptime(request.POST.get("start-time", "").strip(), "%H:%M").time()
+        end_time = datetime.strptime(request.POST.get("end-time", "").strip(), "%H:%M").time()
+    except ValueError:
+        return HttpResponseBadRequest("Times must be HH:MM.")
 
-    meeting_days = "".join(day_short for day, day_short in meeting_days_options if request.POST.get(day))
+    if Course.objects.filter(course_name=course_name).exists():
+        return HttpResponseBadRequest("Course already exists.")
 
     Course.objects.create(
         course_name=course_name,
         instructor=instructor,
-        meeting_days=meeting_days,
+        monday=bool(request.POST.get("day-mon")),
+        tuesday=bool(request.POST.get("day-tue")),
+        wednesday=bool(request.POST.get("day-wed")),
+        thursday=bool(request.POST.get("day-thu")),
+        friday=bool(request.POST.get("day-fri")),
         start_time=start_time,
         end_time=end_time,
     )
@@ -157,36 +159,21 @@ def createCourse(request):
 @csrf_exempt
 def createLecture(request):
     if request.method != "POST":
-        return HttpResponse("Only POST")
+        return HttpResponse("Only POST", status=405)
 
     if not request.user.is_authenticated:
         return HttpResponse("Please log in", status=401)
     if not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Not a professor", status=401)
 
-    instructor = InstructorProfile.objects.get(user=request.user)
-
-    choice = request.POST.get("choice")
-
-    try:
-        Course.objects.get(course_name=choice)
-    except:
+    choice = (request.POST.get("choice") or "").strip()
+    course = Course.objects.filter(course_name=choice).first()
+    if course is None:
         return HttpResponse("Course Does not Exist", status=404)
-
-    start_time = datetime.strptime(request.POST.get("start-time", "").strip(), "%H:%M").time()
-    end_time = datetime.strptime(request.POST.get("end-time", "").strip(), "%H:%M").time()
 
     Lecture.objects.create(
         course=course,
-        instructor=instructor,
-        monday=bool(request.POST.get("day-mon")),
-        tuesday=bool(request.POST.get("day-tue")),
-        wednesday=bool(request.POST.get("day-wed")),
-        thursday=bool(request.POST.get("day-thu")),
-        friday=bool(request.POST.get("day-fri")),
         date=datetime.now(CDT).date(),
-        start_time=start_time,
-        end_time=end_time,
     )
 
     return HttpResponse("Good", status=200)
@@ -207,12 +194,15 @@ def createQRCodeUpload(request):
         return HttpResponse("Not a student", status=401)
 
     photo = request.FILES.get("imageUpload")
+    if photo is None:
+        return HttpResponseBadRequest("No Photo")
 
     QRCodeUpload.objects.create(
         student=student,
         photo=photo,
-        uploaded_at=datetime.now(CDT)
     )
+
+
 
     return HttpResponse("Good", status=200)
 
