@@ -166,7 +166,7 @@ def createLecture(request):
     if not InstructorProfile.objects.filter(user=request.user).exists():
         return HttpResponse("Not a professor", status=401)
 
-    choice = (request.POST.get("choice") or "").strip()
+    choice = request.POST.get("choice", "")
     course = Course.objects.filter(course_name=choice).first()
     if course is None:
         return HttpResponse("Course Does not Exist", status=404)
