@@ -17,7 +17,7 @@ import json
 import io
 
 from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
-                     Lecture, QRCodeUpload)
+                     Lecture, QRCodeUpload, getUploadsForCourse)
 
 # from .models import (InstructorProfile, StudentProfile, Course, Enrollment,
 #                      Lecture, QRCodeUpload, is_instructor, is_student,
@@ -223,6 +223,28 @@ def dumpUploads(request):
 # ---------------------------------------------------------------------------
 # HW6  — getUploads
 # ---------------------------------------------------------------------------
+
+def getUploads(request):
+    if request.method != "GET":
+        return HttpResponse("Cannt do GET", status=405)
+
+    if not is_instructor(request.user):
+        return HttpResponse("Need to be an instructor", status=401)
+
+    course = (request.GET.get("course") or "").strip()
+    if not course:
+        return JsonResponse({"error": "Missing course parameter"}, status=400)
+
+    uploads = getUploadsForCourse(course)
+
+    data = [
+        {
+            "username": upload.student.user.username,
+            "upload_time": upload.uploaded_at.astimezone(CDT).strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for upload in uploads
+    ]
+    return JsonResponse(data, safe=False)
 
 
 

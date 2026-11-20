@@ -23,6 +23,10 @@ import logging
 import string
 import random
 
+import zoneinfo
+import datetime
+CDT = zoneinfo.ZoneInfo("America/Chicago")
+
 logger = logging.getLogger(__name__) # set up tracking, auditing, and debugging
                                                                # allows using logger.warning(), logger.error(), 
                                                                # logger.info(), etc. Better than print() for debuggin... 
@@ -63,7 +67,11 @@ class Course(models.Model):
     """Stores information about courses."""
     course_name = models.CharField(max_length=50, unique=True)
     instructor = models.ForeignKey(InstructorProfile, on_delete=models.SET_NULL, null=True)
-    meeting_days = models.CharField(max_length=50)
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
     start_time = models.TimeField()
     end_time = models.TimeField()
 
@@ -132,3 +140,39 @@ class QRCodeUpload(models.Model):
 
 # moved random_qr to before Lecture since it was giving me errors when I leave it
 # down here.
+
+def getUploadsForCourse(course):
+    """
+    course: the course number/name, e.g. "DATA13600" (stored in course_name).
+    Returns QRCodeUpload objects for that course whose timestamp falls on a
+    meeting day and between start_time and end_time (inclusive).
+    """
+    cl = Course.objects.filter(course_name=course).first()
+
+    start = cl.start_time
+    end = cl.end_time
+
+    if isinstance(start, str):
+        start = datetime.strptime(start.strip(), "%H:%M").time()
+    if isinstance(end, str):
+        end = datetime.strptime(end.strip(), "%H:%M").time()
+
+    class_meeting_days = [
+        cl.monday,
+        cl.tuesday,
+        cl.wednesday,
+        cl.thursday,
+        cl.friday,
+    ]
+
+    uploads = QRCodeUpload.objects.filter(lecture__course=cl).select_related("student__user", "lecture")
+
+    good_uploads = []
+    for upload in uploads:
+        weekday = upload.uploaded_at.astimezone(CDT).weekday()
+        if weekday in (5, 6) or not class_meeting_days[weekday]:
+            continue
+        upload_time = upload.uploaded_at.astimezone(CDT).time()
+        if start <= upload_time <= end:
+            good_uploads.append(upload)
+    return good_uploads
